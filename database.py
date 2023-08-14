@@ -1,36 +1,3 @@
-# import sqlite3
-
-# class Database:
-
-#     def connect_to_db(self):
-#         db_connect = sqlite3.connect('password_records.db')
-#         return db_connect
-
-#     def create_table(self, table_name="password_info"):
-#         db_connect = self.connect_to_db() 
-#         query = """
-#         CREATE TABLE IF NOT EXISTS {table_name}(
-#             id INT PRIMARY KEY AUTOINCREMENT NOT NULL, 
-#             website TEXT NOT NULL,
-#             username VARCHAR(100) DEFAULT NULL, 
-#             email VARCHAR(200) NOT NULL,
-#             password VARCHAR(50) NOT NULL, 
-#             security_question TEXT DEFAULT NULL, 
-#             security_answer TEXT DEFAULT NULL,
-#             notes TEXT DEFAULT NULL,
-#             created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-#             update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-#         );
-#         """
-#         with db_connect as db_connect:
-#             cursor = db_connect.cursor()
-#             db_connect = cursor.execute(query) 
-#             print("Table successfully created")
-
-
-
-
-
 import sqlite3
 
 class Database:
@@ -100,13 +67,26 @@ class Database:
                 cursor.execute(insert_query, (website, email, username, password, security_question, security_answer, notes))
                 print("Account info successfully inserted", (website, email, username, password, security_question, security_answer, notes))
                 self.db_connect.commit() 
-            # cursor.close() 
+                # cursor.close()
         except sqlite3.Error as e: 
             print("Error inserting account info:", e)
         finally:
             self.close_db() 
 
-
+    def retrieve_last_inserted_id(self, table_name="password_info"):
+        query = f"""
+        SELECT last_insert_rowid();
+        """
+        try: 
+            self.connect_to_db()
+            cursor = self.db_connect.cursor()
+            cursor.execute(query)
+            last_inserted_id = cursor.fetchone()[0]
+            return last_inserted_id
+        except sqlite3.Error as e:
+            print("Error getting last inserted ID:", e)
+        finally:
+            self.close_db()
 
     def show_accounts(self, table_name="password_info"):
         select_query = f"""
