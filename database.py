@@ -45,6 +45,7 @@ class Database:
 
 
     def create_account_info(self, data, table_name="password_info"):
+        # id = data["id"]
         website = data["website"]
         email = data["email"]
         username = data["username"]
@@ -101,6 +102,7 @@ class Database:
 
 
     def update_account_info(self, data, table_name="password_info"):
+        id = data["id"]
         website = data["website"]
         email = data["email"]
         username = data["username"]
@@ -118,8 +120,8 @@ class Database:
         try:
             self.connect_to_db() 
             cursor = self.db_connect.cursor()
-            cursor.execute(update_query, (website, email, username, password, security_question, security_answer, notes))
-            print("Data successfully updated", (website, email, username, password, security_question, security_answer, notes))
+            cursor.execute(update_query, (id, website, email, username, password, security_question, security_answer, notes))
+            print("Data successfully updated", (id, website, email, username, password, security_question, security_answer, notes))
         except sqlite3.Error as e: 
             print("Error updating account info:", e)
         finally:
