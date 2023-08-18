@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Label, LabelFrame, Button, Entry, messagebox, StringVar, Canvas, END
+from tkinter import Tk, Frame, Label, LabelFrame, Button, Entry, messagebox, Checkbutton, IntVar, Canvas, END
 from tkinter import ttk 
 from database import Database
 
@@ -24,6 +24,11 @@ class main_window():
         self.security_question = ""
         self.security_answer = ""
         self.notes = ""
+
+        self.upper_case_letters = IntVar()
+        self.lower_case_letters = IntVar()
+        self.special_char = IntVar()
+        self.numbers = IntVar()
         
         self.main.title("Password Manager")
         self.main.geometry("1230x780+150+0") # widthxheight+x_position+y_position
@@ -42,15 +47,17 @@ class main_window():
         self.search_frame = LabelFrame(self.main, text="Search Account", bg="#7C7B86", highlightbackground="#FFFFFF", highlightthickness=3, font=("Courier", 12, "bold"), relief="flat", padx=10, pady=10)
         self.search_frame.grid(row=1, column=1, padx=20, pady=10, sticky="n")
 
+        self.pw_strength_frame = LabelFrame(self.main, text="Password Strength Meter", bg="#7C7B86", highlightbackground="#FFFFFF", highlightthickness=3, font=("Courier", 12, "bold"), relief="flat", padx=10, pady=10)
+        self.pw_strength_frame.grid(row=2, column=1, padx=20, pady=10, sticky="n")
+
         self.pw_generator_frame = LabelFrame(self.main, text="Password Generator", bg="#7C7B86", highlightbackground="#FFFFFF", highlightthickness=3, font=("Courier", 12, "bold"), relief="flat", padx=10, pady=10)
-        self.pw_generator_frame.grid(row=1, column=2, padx=20, pady=10, sticky="n")
+        self.pw_generator_frame.grid(row=3, column=1, padx=20, pady=10, sticky="n")
 
-
-        # self.search_account()
         self.create_entry_labels()
         self.create_entry_boxes()
         self.create_crud_buttons()
-        self.create_search_button()
+        self.create_buttons()
+        self.create_checkboxes()
         self.create_accounts_tree()
 
     # def increment_id(self):
@@ -66,11 +73,14 @@ class main_window():
     
         # Button(self.search_frame, width=10, text="Search", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+1, padx=5, pady=2)
     
-    def generate_password(self):
-        pass 
 
     def create_entry_labels(self):
         self.row_no = self.col_no = 0
+
+        Label(self.pw_strength_frame, text="Enter Password", bg="#7C7B86", fg="#FFFFFF", font=("Courier", 12, "bold"), padx=5, pady=1).grid(row=self.row_no, column=self.col_no, padx=5, pady=1, sticky="w")
+        
+        Label(self.pw_generator_frame, text="Password Length", bg="#7C7B86", fg="#FFFFFF", font=("Courier", 12, "bold"), padx=5, pady=1).grid(row=self.row_no, column=self.col_no, padx=5, pady=1, sticky="w")
+
         labels_info = ("ID", "Website*", "Email*", "Username*", "Password*", "Security Question", "Security Answer", "Notes")
         for label_info in labels_info:
             Label(self.crud_frame, text=label_info, bg="#7C7B86", fg="#FFFFFF", font=("Courier", 12, "bold"), padx=5, pady=1).grid(row=self.row_no, column=self.col_no, padx=5, pady=1, sticky="w")
@@ -80,6 +90,16 @@ class main_window():
         self.entry_boxes = []
         
         self.row_no = self.col_no = 0
+
+        # Password Strenght Entry Box 
+        self.password_strength = Entry(self.pw_strength_frame, width=19, bg="#FFFFFF", highlightcolor="#FFFFFF", highlightbackground="#000000", highlightthickness=2, font=("Courier", 12), relief="flat")
+        self.password_strength.grid(row=self.row_no, column=self.col_no+1, sticky="w")
+
+        # Generate Password Entry Box 
+        self.generate_password = Entry(self.pw_generator_frame, width=13, bg="#FFFFFF", highlightcolor="#FFFFFF", highlightbackground="#000000", highlightthickness=2, font=("Courier", 12), relief="flat")
+        self.generate_password.grid(row=self.row_no, column=self.col_no+1, sticky="w")
+
+        # Search Account Entry Box 
         self.search_account = Entry(self.search_frame, width=36, bg="#FFFFFF", highlightcolor="#FFFFFF", highlightbackground="#000000", highlightthickness=2, font=("Courier", 12), relief="flat")
         self.search_account.grid(row=self.row_no, column=self.col_no)
         
@@ -107,9 +127,30 @@ class main_window():
             self.row_no += 1 
             self.entry_boxes.append(entry_box)
 
-    def create_search_button(self):
+    def create_checkboxes(self):
+        self.row_no = 1
+        self.col_no = 0 
+
+        self.upper_checkbox = Checkbutton(self.pw_generator_frame, text="Uppercase Letters", variable=self.upper_case_letters, onvalue=1, offvalue=0, font=("Courier", 11, "bold"), bg="#7C7B86", activebackground="#7C7B86", relief="flat", padx=10, pady=10)
+        self.upper_checkbox.grid(row=self.row_no, column=self.col_no)
+        self.lower_checkbox = Checkbutton(self.pw_generator_frame, text="Lowercase Letters", variable=self.lower_case_letters, onvalue=1, offvalue=0, font=("Courier", 11, "bold"), bg="#7C7B86", activebackground="#7C7B86", relief="flat", padx=10, pady=10)
+        self.lower_checkbox.grid(row=self.row_no+1, column=self.col_no)
+        self.special_char_checkbox = Checkbutton(self.pw_generator_frame, text="Special Characters", variable=self.special_char, onvalue=1, offvalue=0, font=("Courier", 11, "bold"), bg="#7C7B86", activebackground="#7C7B86", relief="flat", padx=10, pady=10)
+        self.special_char_checkbox.grid(row=self.row_no, column=self.col_no+1, columnspan=2)
+        self.numbers_checkbox = Checkbutton(self.pw_generator_frame, text="Numbers", variable=self.numbers, onvalue=1, offvalue=0, font=("Courier", 11, "bold"), bg="#7C7B86", activebackground="#7C7B86", relief="flat", padx=10, pady=10)
+        self.numbers_checkbox.grid(row=self.row_no+1, column=self.col_no+1, columnspan=2, sticky="nswe")
+
+    def create_buttons(self):
         self.row_no = self.col_no = 0
+        
+        # Search Button 
         Button(self.search_frame, width=10, text="Search", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+1, padx=5, pady=2)
+
+        # Check Password Strength Button 
+        Button(self.pw_strength_frame, width=10, text="Check PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+2, padx=5, pady=2)
+        
+        # Generate Password Button 
+        Button(self.pw_generator_frame, width=12, text="Generate PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+2, padx=5, pady=2, sticky="e")
 
     def create_crud_buttons(self):
         buttons_info = (("Save", "#59B400", self.save_account_info), ("Update", "#00AAFF", self.update_account_info), ("Delete", "#FF5383", self.delete_account_info), ("Show Account Info", "#E996FA", self.show_accounts_info)) # ("Copy Password", "#E996FA", self.copy_password)
