@@ -120,8 +120,10 @@ class Database:
         try:
             self.connect_to_db() 
             cursor = self.db_connect.cursor()
-            cursor.execute(update_query, (id, website, email, username, password, security_question, security_answer, notes))
-            print("Data successfully updated", (id, website, email, username, password, security_question, security_answer, notes))
+            print("Update Query:", update_query)
+            print("Data to Update:", (id, website, email, username, password, security_question, security_answer, notes))
+            cursor.execute(update_query, (website, email, username, password, security_question, security_answer, notes, id))
+            self.db_connect.commit()
         except sqlite3.Error as e: 
             print("Error updating account info:", e)
         finally:
@@ -140,6 +142,7 @@ class Database:
             cursor = self.db_connect.cursor()
             cursor.execute(delete_query, (id,))
             print("Account info successfully deleted")
+            self.db_connect.commit()
         except sqlite3.Error as e: 
             print("Error deleting account info:", e)
         finally:

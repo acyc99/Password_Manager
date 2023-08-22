@@ -12,11 +12,6 @@ class main_window():
         self.main = main # Tk() 
         self.db = db 
 
-        # self.last_inserted_id = self.db.retrieve_last_inserted_id()
-        # self.id_count = 0
-        # self.id_var = StringVar()
-
-        # self.id = None
         self.website = ""
         self.email = ""
         self.username = ""
@@ -58,21 +53,7 @@ class main_window():
         self.create_crud_buttons()
         self.create_buttons()
         self.create_checkboxes()
-        self.create_accounts_tree()
-
-    # def increment_id(self):
-    #     last_inserted_id = self.db.retrieve_last_inserted_id()
-    #     print(last_inserted_id)
-    #     self.id_count = last_inserted_id + 1 
-    #     self.id_var.set(str(self.id_count))
-
-    # def search_account(self):
-    #     self.row_no = self.col_no = 0
-        # self.search_account = Entry(self.search_frame, width=36, bg="#FFFFFF", highlightcolor="#FFFFFF", highlightbackground="#000000", highlightthickness=2, font=("Courier", 12), relief="flat")
-        # self.search_account.grid(row=self.row_no, column=self.col_no)
-    
-        # Button(self.search_frame, width=10, text="Search", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+1, padx=5, pady=2)
-    
+        self.create_accounts_tree()    
 
     def create_entry_labels(self):
         self.row_no = self.col_no = 0
@@ -83,6 +64,7 @@ class main_window():
 
         labels_info = ("ID", "Website*", "Email*", "Username*", "Password*", "Security Question", "Security Answer", "Notes")
         for label_info in labels_info:
+            # Make Label Width Smaller 
             Label(self.crud_frame, text=label_info, bg="#7C7B86", fg="#FFFFFF", font=("Courier", 12, "bold"), padx=5, pady=1).grid(row=self.row_no, column=self.col_no, padx=5, pady=1, sticky="w")
             self.row_no += 1
 
@@ -105,16 +87,11 @@ class main_window():
         
         self.col_no += 1
         self.row_no = 0
-
-        # id_entry = Entry(self.crud_frame, width=25, bg="#000000", fg="#FFFFFF", state="disabled", font=("Courier", 13, "bold"), relief="flat") # textvariable=self.id_var
-        id_entry = Entry(self.crud_frame, width=25, bg="#FFFFFF", state="disabled", highlightcolor="#FFFFFF", highlightbackground="#000000", highlightthickness=2, font=("Courier", 12), relief="flat")
+       
+       # id Entry Box 
+        id_entry = Entry(self.crud_frame, width=25, bg="#000000", fg="#FFFFFF", highlightcolor="#FFFFFF", highlightbackground="#FFFFFF", highlightthickness=2, font=("Courier", 12), relief="flat")
         id_entry.grid(row=self.row_no, column=self.col_no, padx=20, pady=10, sticky="w")
         self.entry_boxes.append(id_entry)
-
-        # id_entry = Label(self.crud_frame, width=25, bg="#000000", fg="#FFFFFF", state="disabled", font=("Courier", 13, "bold"), relief="flat") # textvariable=self.id_var
-        # id_entry.grid(row=self.row_no, column=self.col_no, padx=20, pady=10, sticky="w")
-
-        # self.increment_id()
 
         self.row_no += 1
 
@@ -123,7 +100,7 @@ class main_window():
             if i == 3:
                 show = "*"
             entry_box = Entry(self.crud_frame, width=25, bg="#FFFFFF", highlightcolor="#FFFFFF", highlightbackground="#000000", highlightthickness=2, font=("Courier", 12), relief="flat", show=show)
-            entry_box.grid(row=self.row_no, column=self.col_no, padx=20, pady=10, sticky="w")
+            entry_box.grid(row=self.row_no, column=self.col_no, columnspan=2, padx=20, pady=10, sticky="w") ### Change columnspan 
             self.row_no += 1 
             self.entry_boxes.append(entry_box)
 
@@ -195,9 +172,9 @@ class main_window():
                 self.entry_boxes[index].config(highlightbackground="#FF0000", highlightthickness=2, relief="flat")
             else:
                 self.entry_boxes[index].config(highlightbackground="#FFFFFF", highlightthickness=2, relief="flat")
+                self.entry_boxes[index].delete(0, END)
 
         data = {"website": self.website, "email": self.email, "username": self.username, "password": self.password, "security_question": self.security_question, "security_answer": self.security_answer, "notes": self.notes}
-        # data = {"id": self.id, "website": self.website, "email": self.email, "username": self.username, "password": self.password, "security_question": self.security_question, "security_answer": self.security_answer, "notes": self.notes}
         
         self.db.create_account_info(data)
         self.show_accounts_info()
@@ -215,15 +192,24 @@ class main_window():
         # data = {"website": self.website, "email": self.email, "username": self.username, "password": self.password, "security_question": self.security_question, "security_answer": self.security_answer, "notes": self.notes}
         data = {"id": self.id, "website": self.website, "email": self.email, "username": self.username, "password": self.password, "security_question": self.security_question, "security_answer": self.security_answer, "notes": self.notes}
         self.db.update_account_info(data)
+        for entry_box in self.entry_boxes:
+            entry_box.delete(0, END)
         self.show_accounts_info()
 
     def delete_account_info(self):
-        ID = self.entry_boxes[0].get() 
-        self.db.delete_account_info(ID)
+        self.id = self.entry_boxes[0].get()
+        self.db.delete_account_info(self.id)
+        for entry_box in self.entry_boxes:
+            entry_box.delete(0, END)
         self.show_accounts_info()
 
     def copy_password(self):
-        pass
+        self.main.clipboard_clear() 
+        self.main.clipboard_append(self.entry_boxes[4].get())
+        if self.entry_boxes[4].get() != "":
+            messagebox.showerror("Failed", "No Password")
+        else:
+            messagebox.Message("Copy", "Password Copied")
 
     def show_accounts_info(self):
         for account in self.accounts_tree.get_children():
@@ -240,7 +226,7 @@ class main_window():
         tree_frame = Frame(self.main, highlightbackground="#FFFFFF", highlightthickness=3, relief="flat")
         tree_frame.grid(row=5, column=0, columnspan=4, padx=20, pady=5, sticky="w")
 
-        self.accounts_tree = ttk.Treeview(tree_frame, columns=columns, show="headings")
+        self.accounts_tree = ttk.Treeview(tree_frame, columns=columns, show="headings", height=5)
         
         for column, width in zip(columns, columns_widths):
             self.accounts_tree.column(column, width=width)
@@ -256,6 +242,15 @@ class main_window():
         # Allow the Treeview widget to expand within the tree_frame
         tree_frame.grid_rowconfigure(0, weight=1)
         tree_frame.grid_columnconfigure(0, weight=1)
+
+        def selected_account(event):
+            for selected_ac in self.accounts_tree.selection():
+                account = self.accounts_tree.item(selected_ac)
+                record = account["values"]
+                for entry_box, account in zip(self.entry_boxes, record):
+                    entry_box.delete(0, END) # Delete whatever is in the entry boxes
+                    entry_box.insert(0, account) # Insert selected account info into the entry boxes 
+        self.accounts_tree.bind("<<TreeviewSelect>>", selected_account)
 
 
 if __name__ == "__main__":
