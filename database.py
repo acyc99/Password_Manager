@@ -88,6 +88,34 @@ class Database:
 
 
 
+    def search_accounts(self, keyword, table_name="password_info"):
+        try: 
+            self.connect_to_db()
+            cursor = self.db_connect.cursor() 
+
+            # Column Names 
+            cursor.execute(f"PRAGMA table_info({table_name})") # Dynamically gets the column names 
+            columns = [column[1] for column in cursor.fetchall()]
+
+            search_query = f"""
+            SELECT * FROM {table_name}
+            WHERE {' OR '.join([f'{column} LIKE ?' for column in columns])};
+            """
+
+            # cursor.execute(search_query, [keyword] * len(columns))
+            cursor.execute(search_query, [keyword])
+            search_results = cursor.fetchall()
+
+            return search_results
+        
+        except sqlite3.Error as e:
+            print("Error searching records:", e)
+            return None
+        finally:
+            self.close_db()
+
+
+
     def update_account_info(self, data, table_name="password_info"):
         id = data["id"]
         website = data["website"]

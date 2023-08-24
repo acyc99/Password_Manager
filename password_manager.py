@@ -34,7 +34,7 @@ class main_window():
         self.crud_frame = LabelFrame(self.main, text="Account Password Entry", bg="#7C7B86", highlightbackground="#FFFFFF", highlightthickness=3, font=("Courier", 12, "bold"), relief="flat", padx=10, pady=10) # relief="flat" - Text with no border 
         self.crud_frame.grid(row=1, column=0, rowspan=3, padx=20, pady=10, sticky="w") 
 
-        self.search_frame = LabelFrame(self.main, text="Search Account", bg="#7C7B86", highlightbackground="#FFFFFF", highlightthickness=3, font=("Courier", 12, "bold"), relief="flat", padx=10, pady=10)
+        self.search_frame = LabelFrame(self.main, text="Search Account by Website", bg="#7C7B86", highlightbackground="#FFFFFF", highlightthickness=3, font=("Courier", 12, "bold"), relief="flat", padx=10, pady=10)
         self.search_frame.grid(row=1, column=1, padx=20, pady=10, sticky="n")
 
         self.pw_strength_frame = LabelFrame(self.main, text="Password Strength Meter", bg="#7C7B86", highlightbackground="#FFFFFF", highlightthickness=3, font=("Courier", 12, "bold"), relief="flat", padx=10, pady=10)
@@ -64,22 +64,26 @@ class main_window():
             self.row_no += 1
 
     def create_entry_boxes(self):
+        self.search_entry_boxes = [] # Values from: website, password strength, and password length 
         self.entry_boxes = []
         
         self.row_no = self.col_no = 0
 
+        # Search Account Entry Box 
+        self.search_account = Entry(self.search_frame, width=36, bg="#FFFFFF", highlightcolor="#FFFFFF", highlightbackground="#000000", highlightthickness=2, font=("Courier", 12), relief="flat")
+        self.search_account.grid(row=self.row_no, column=self.col_no)
+        self.search_entry_boxes.append(self.search_account)
+
         # Password Strenght Entry Box 
         self.password_strength = Entry(self.pw_strength_frame, width=19, bg="#FFFFFF", highlightcolor="#FFFFFF", highlightbackground="#000000", highlightthickness=2, font=("Courier", 12), relief="flat")
         self.password_strength.grid(row=self.row_no, column=self.col_no+1, sticky="w")
+        self.search_entry_boxes.append(self.password_strength)
 
         # Generate Password Entry Box 
         self.generate_password = Entry(self.pw_generator_frame, width=13, bg="#FFFFFF", highlightcolor="#FFFFFF", highlightbackground="#000000", highlightthickness=2, font=("Courier", 12), relief="flat")
         self.generate_password.grid(row=self.row_no, column=self.col_no+1, sticky="w")
+        self.search_entry_boxes.append(self.generate_password) # Password Length 
 
-        # Search Account Entry Box 
-        self.search_account = Entry(self.search_frame, width=36, bg="#FFFFFF", highlightcolor="#FFFFFF", highlightbackground="#000000", highlightthickness=2, font=("Courier", 12), relief="flat")
-        self.search_account.grid(row=self.row_no, column=self.col_no)
-        
         self.col_no += 1
         self.row_no = 0
        
@@ -121,7 +125,7 @@ class main_window():
         # Copy Password Button 
         Button(self.crud_frame, command=self.copy_password, width=5, text="Copy", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no+4, column=self.col_no+1, padx=5, pady=2, sticky="e")
         # Search Button 
-        Button(self.search_frame, width=10, text="Search", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+1, padx=5, pady=2)
+        Button(self.search_frame, command=self.search_account_info, width=10, text="Search", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+1, padx=5, pady=2)
         # Check Password Strength Button 
         Button(self.pw_strength_frame, width=10, text="Check PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+2, padx=5, pady=2)
         # Generate Password Button 
@@ -219,6 +223,16 @@ class main_window():
         for account in accounts_list:
             # Exclude the password value from the values tuple
             self.accounts_tree.insert("", END, values=(account[0], account[1], account[2], account[3], account[5], account[6], account[7]))
+    
+
+    ### Modify to only search by Website 
+    def search_account_info(self):
+        for account in self.accounts_tree.get_children():
+            self.accounts_tree.delete(account)
+        accounts_list = self.db.search_accounts(self.search_entry_boxes[0])
+        print("Result:", self.search_entry_boxes[0])
+        for account in accounts_list:
+            self.accounts_tree.insert("", END, values=(account[0], account[1], account[2], account[3], account[5], account[6], account[7]))
 
     def create_accounts_tree(self):
         # Exclude the "Password" column from columns and columns_widths
@@ -230,7 +244,7 @@ class main_window():
         tree_frame = Frame(self.main, highlightbackground="#FFFFFF", highlightthickness=3, relief="flat")
         tree_frame.grid(row=5, column=0, columnspan=4, padx=20, pady=5, sticky="w")
 
-        self.accounts_tree = ttk.Treeview(tree_frame, columns=columns, show="headings", height=5)
+        self.accounts_tree = ttk.Treeview(tree_frame, columns=columns, show="headings", height=5) # Set the tree view to only show 5 rows, need to use the scrollbar to see more rows
 
         for column, width in zip(columns, columns_widths):
             self.accounts_tree.column(column, width=width)
