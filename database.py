@@ -74,20 +74,7 @@ class Database:
         finally:
             self.close_db() 
 
-    def retrieve_last_inserted_id(self, table_name="password_info"):
-        query = f"""
-        SELECT last_insert_rowid();
-        """
-        try: 
-            self.connect_to_db()
-            cursor = self.db_connect.cursor()
-            cursor.execute(query)
-            last_inserted_id = cursor.fetchone()[0]
-            return last_inserted_id
-        except sqlite3.Error as e:
-            print("Error getting last inserted ID:", e)
-        finally:
-            self.close_db()
+
 
     def show_accounts(self, table_name="password_info"):
         select_query = f"""
@@ -145,5 +132,29 @@ class Database:
             self.db_connect.commit()
         except sqlite3.Error as e: 
             print("Error deleting account info:", e)
+        finally:
+            self.close_db() 
+
+
+    def retrieve_ac_pw(self, id, table_name="password_info"):
+
+        retrieve_pw_query = f"""
+        SELECT password FROM {table_name} WHERE id = ?; 
+        """
+
+        try:
+            self.connect_to_db()
+            cursor = self.db_connect.cursor()
+            cursor.execute(retrieve_pw_query, (id,))
+            result = cursor.fetchone()
+            if result:
+                password = result[0]
+                print("Account password successfully retrieved")
+                return password  # Return the retrieved password
+            else:
+                print("No matching record found.")
+                return None  # Return None if no matching record is found
+        except sqlite3.Error as e: 
+            print("Error retrieving password:", e)
         finally:
             self.close_db() 

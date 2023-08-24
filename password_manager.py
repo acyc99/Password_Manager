@@ -2,8 +2,6 @@ from tkinter import Tk, Frame, Label, LabelFrame, Button, Entry, messagebox, Che
 from tkinter import ttk 
 from database import Database
 
-# Work on ID, delete and update function 
-# Work on Vertical Scrollbar for the self.main window / Fix the Tree window size issue (expand)
 
 
 class main_window():
@@ -29,13 +27,10 @@ class main_window():
         self.main.geometry("1230x780+150+0") # widthxheight+x_position+y_position
         self.main.configure(bg="#000000")
         self.main.resizable(width=False, height=True)
-        # self.main = ttk.Frame(self.main)
-        # self.main.pack(fill="both", expand=True, padx=20, pady=5)
 
         self.head_title = Label(self.main, text="Password Manager", width=75, bg="#4B4A54", fg="#FFFFFF", font=("Courier", 20, "bold"), highlightbackground="#FFFFFF", highlightthickness=3,
                            padx=10, pady=10, justify="center", anchor="center").grid(columnspan=4, pady=15, sticky="nsew") 
 
-        # self.crud_frame = Frame(self.main, bg="#7C7B86", highlightbackground="#FFFFFF", highlightthickness=3, padx=10, pady=20)
         self.crud_frame = LabelFrame(self.main, text="Account Password Entry", bg="#7C7B86", highlightbackground="#FFFFFF", highlightthickness=3, font=("Courier", 12, "bold"), relief="flat", padx=10, pady=10) # relief="flat" - Text with no border 
         self.crud_frame.grid(row=1, column=0, rowspan=3, padx=20, pady=10, sticky="w") 
 
@@ -125,13 +120,10 @@ class main_window():
 
         # Copy Password Button 
         Button(self.crud_frame, command=self.copy_password, width=5, text="Copy", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no+4, column=self.col_no+1, padx=5, pady=2, sticky="e")
-        
         # Search Button 
         Button(self.search_frame, width=10, text="Search", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+1, padx=5, pady=2)
-
         # Check Password Strength Button 
         Button(self.pw_strength_frame, width=10, text="Check PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+2, padx=5, pady=2)
-        
         # Generate Password Button 
         Button(self.pw_generator_frame, width=12, text="Generate PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+2, padx=5, pady=2, sticky="e")
 
@@ -225,58 +217,49 @@ class main_window():
             self.accounts_tree.delete(account)
         accounts_list = self.db.show_accounts() 
         for account in accounts_list:
+            # Exclude the password value from the values tuple
             self.accounts_tree.insert("", END, values=(account[0], account[1], account[2], account[3], account[5], account[6], account[7]))
-            # self.accounts_tree.insert("", END, values=(account[0], account[1], account[2], account[3], account[4], account[5], account[6], account[7]))
-            # print(account) 
 
     def create_accounts_tree(self):
-        # columns = ("ID", "Website", "Email", "Username", "Password", "Security Q", "Security A", "Notes")
-        # columns_widths= (40, 110, 200, 120, 150, 220, 100, 220)
+        # Exclude the "Password" column from columns and columns_widths
+        columns = ("ID", "Website", "Email", "Username", "Security Q", "Security A", "Notes")
+        columns_widths = (40, 140, 200, 120, 220, 220, 220)
 
         self.id = self.entry_boxes[0].get()
-
-        columns = ("ID", "Website", "Email", "Username", "Security Q", "Security A", "Notes")
-        columns_widths= (40, 110, 200, 120, 220, 220, 220)
 
         tree_frame = Frame(self.main, highlightbackground="#FFFFFF", highlightthickness=3, relief="flat")
         tree_frame.grid(row=5, column=0, columnspan=4, padx=20, pady=5, sticky="w")
 
         self.accounts_tree = ttk.Treeview(tree_frame, columns=columns, show="headings", height=5)
-        # self.accounts_tree.heading("ID", text="ID")
-        # self.accounts_tree.heading("Website", text="Website")
-        # self.accounts_tree.heading("Email", text="Email")
-        # self.accounts_tree.heading("Username", text="Username")
-        # self.accounts_tree.heading("Security Q", text="Security Q")
-        # self.accounts_tree.heading("Security A", text="Security A")
-        # self.accounts_tree.heading("Notes", text="Notes")
-
-
-        # self.accounts_tree["displaycolumns"] = ("ID", "Website", "Email", "Username", "Security Q", "Security A", "Notes")
 
         for column, width in zip(columns, columns_widths):
             self.accounts_tree.column(column, width=width)
             self.accounts_tree.heading(column, text=column)
 
-        # self.accounts_tree.config(displaycolumns=("ID", "Website", "Email", "Username", "Security Q", "Security A", "Notes"))
+        self.accounts_tree.grid(row=5, column=0, sticky="w")
 
-        self.accounts_tree.grid(row=5, column=0, sticky="w") # padx=20, pady=10, 
-
-        # Create a Vertical Scrollbar on the right side and Link to the Treeview 
         scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=self.accounts_tree.yview)
         scrollbar.grid(row=5, column=1, sticky="ns")
         self.accounts_tree.configure(yscrollcommand=scrollbar.set)
 
-        # Allow the Treeview widget to expand within the tree_frame
         tree_frame.grid_rowconfigure(0, weight=1)
         tree_frame.grid_columnconfigure(0, weight=1)
 
-        def selected_account(event):
+        def selected_account(e):
             for selected_ac in self.accounts_tree.selection():
                 account = self.accounts_tree.item(selected_ac)
-                record = account["values"]
-                for entry_box, account in zip(self.entry_boxes, record):
-                    entry_box.delete(0, END) # Delete whatever is in the entry boxes
-                    entry_box.insert(0, account) # Insert selected account info into the entry boxes 
+                record = account["values"] # Record: [id, website, email, username, security q, security a, notes]
+                print(type(record)) # <class 'list'>
+                print("Record:", record)
+
+                password = self.db.retrieve_ac_pw(record[0]) # record[0] = id 
+                record.insert(4, password)
+                print("Updated Record:", record)
+
+                for entry_box, value in zip(self.entry_boxes, record):
+                    entry_box.delete(0, END)
+                    entry_box.insert(0, value)
+
         self.accounts_tree.bind("<<TreeviewSelect>>", selected_account)
 
 
