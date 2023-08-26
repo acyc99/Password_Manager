@@ -1,6 +1,7 @@
 from tkinter import Tk, Frame, Label, LabelFrame, Button, Entry, messagebox, Checkbutton, IntVar, Canvas, END
 from tkinter import ttk 
 from database import Database
+import random, string
 
 
 
@@ -50,18 +51,24 @@ class main_window():
         self.create_checkboxes()
         self.create_accounts_tree()    
 
+
     def create_entry_labels(self):
         self.row_no = self.col_no = 0
 
         Label(self.pw_strength_frame, text="Enter Password", bg="#7C7B86", fg="#FFFFFF", font=("Courier", 12, "bold"), padx=5, pady=1).grid(row=self.row_no, column=self.col_no, padx=5, pady=1, sticky="w")
         
         Label(self.pw_generator_frame, text="Password Length", bg="#7C7B86", fg="#FFFFFF", font=("Courier", 12, "bold"), padx=5, pady=1).grid(row=self.row_no, column=self.col_no, padx=5, pady=1, sticky="w")
+        
+        # Show Random Password 
+        self.generated_pw_label = Label(self.pw_generator_frame, text="Generating PW...", bg="#7C7B86", fg="#FFFFFF", font=("Courier", 12, "bold"), padx=5, pady=1)
+        self.generated_pw_label.grid(row=3, column=self.col_no, padx=5, pady=1, sticky="w")
 
         labels_info = ("ID", "Website*", "Email*", "Username*", "Password*", "Security Question", "Security Answer", "Notes")
         for label_info in labels_info:
             # Make Label Width Smaller 
             Label(self.crud_frame, text=label_info, bg="#7C7B86", fg="#FFFFFF", font=("Courier", 12, "bold"), padx=5, pady=1).grid(row=self.row_no, column=self.col_no, padx=5, pady=1, sticky="w")
             self.row_no += 1
+
 
     def create_entry_boxes(self):
         self.search_entry_boxes = [] # Values from: website, password strength, and password length 
@@ -106,6 +113,7 @@ class main_window():
             self.row_no += 1 
             self.entry_boxes.append(entry_box)
 
+
     def create_checkboxes(self):
         self.row_no = 1
         self.col_no = 0 
@@ -119,6 +127,7 @@ class main_window():
         self.numbers_checkbox = Checkbutton(self.pw_generator_frame, text="Numbers", variable=self.numbers, onvalue=1, offvalue=0, font=("Courier", 11, "bold"), bg="#7C7B86", activebackground="#7C7B86", relief="flat", padx=10, pady=10)
         self.numbers_checkbox.grid(row=self.row_no+1, column=self.col_no+1, columnspan=2, sticky="nswe")
 
+
     def create_buttons(self):
         self.row_no = self.col_no = 0
 
@@ -129,7 +138,11 @@ class main_window():
         # Check Password Strength Button 
         Button(self.pw_strength_frame, width=10, text="Check PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+2, padx=5, pady=2)
         # Generate Password Button 
-        Button(self.pw_generator_frame, width=12, text="Generate PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+2, padx=5, pady=2, sticky="e")
+        Button(self.pw_generator_frame, width=12, command=self.generate_random_password, text="Generate PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=2, padx=5, pady=2, sticky="e")
+        # Copy Generated Password Button 
+        self.copy_generated_pw_button = Button(self.pw_generator_frame, command=self.copy_generated_password, width=5, text="Copy", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0, state="disabled")
+        self.copy_generated_pw_button.grid(row=3, column=2, padx=5, pady=2, sticky="e")
+
 
     def create_crud_buttons(self):
         buttons_info = (("Save", "#59B400", self.save_account_info), ("Update", "#00AAFF", self.update_account_info), ("Delete", "#FF5383", self.delete_account_info), ("Show Account Info", "#E996FA", self.show_accounts_info)) # ("Copy Password", "#E996FA", self.copy_password)
@@ -153,6 +166,7 @@ class main_window():
             Button(self.crud_frame, width=15, text=button_info[0], bg=button_info[1], fg="#000000", font=("Courier", 12), padx=3, pady=0, command=button_info[2]).grid(row=self.row_no, column=self.col_no, padx=5, pady=10, sticky="ew")
             self.crud_frame.grid_columnconfigure(self.col_no, uniform="buttons") 
             self.col_no += 1
+
 
     def save_account_info(self):
         # self.id = self.entry_boxes[0].get()
@@ -181,6 +195,7 @@ class main_window():
         self.db.create_account_info(data)
         self.show_accounts_info()
 
+
     def update_account_info(self):
         self.id = self.entry_boxes[0].get()
         self.website = self.entry_boxes[1].get()
@@ -197,12 +212,14 @@ class main_window():
             entry_box.delete(0, END)
         self.show_accounts_info()
 
+
     def delete_account_info(self):
         self.id = self.entry_boxes[0].get()
         self.db.delete_account_info(self.id)
         for entry_box in self.entry_boxes:
             entry_box.delete(0, END)
         self.show_accounts_info()
+
 
     def copy_password(self):
         password = self.entry_boxes[4].get()
@@ -215,6 +232,52 @@ class main_window():
         
         for entry_box in self.entry_boxes:
             entry_box.delete(0, END)
+    
+
+    def generate_random_password(self):
+        length = int(self.search_entry_boxes[2].get())
+        uppercase = self.upper_case_letters.get()
+        lowercase = self.lower_case_letters.get()
+        special_char = self.special_char.get()
+        number = self.numbers.get()
+        
+        print(type(length))
+        print(uppercase, lowercase, special_char, number)
+
+        character_sets = []
+
+        if length >= 8 and length <= 16: 
+            if uppercase == 1:
+                character_sets.append(string.ascii_uppercase)
+            if lowercase == 1:
+                character_sets.append(string.ascii_lowercase)
+            if special_char == 1:
+                character_sets.append(string.punctuation)
+            if number == 1:
+                character_sets.append(string.digits)
+
+            # Combine character_sets into a string 
+            characters = "".join(character_sets)
+
+            # Generate a password based on the length 
+            if characters:
+                self.password = "".join(random.choice(characters) for _ in range(length))
+                print("Generated Password", self.password)
+                self.generated_pw_label.config(text=self.password)
+                self.copy_generated_pw_button.config(state="normal")
+        
+        else:
+            messagebox.showerror("Password Length Error", "Password length must be between 8 and 16")
+    
+    
+    def copy_generated_password(self):
+        generated_password = self.password
+        if generated_password != "":
+            self.main.clipboard_clear() # Clear the clipboard 
+            self.main.clipboard_append(generated_password) # Copy the password to the clipboard 
+            messagebox.showinfo("Copy", "Generated Password Copied") 
+        else:
+            messagebox.showerror("Failed", "No Password Generated")
 
     def show_accounts_info(self):
         for account in self.accounts_tree.get_children():
@@ -223,9 +286,8 @@ class main_window():
         for account in accounts_list:
             # Exclude the password value from the values tuple
             self.accounts_tree.insert("", END, values=(account[0], account[1], account[2], account[3], account[5], account[6], account[7]))
-    
 
-    ### Modify to only search by Website 
+
     def search_accounts_info(self):
         keyword = self.search_entry_boxes[0].get()
         print("Result:", keyword)
@@ -234,6 +296,7 @@ class main_window():
         accounts_list = self.db.search_accounts(keyword)
         for account in accounts_list:
             self.accounts_tree.insert("", END, values=(account[0], account[1], account[2], account[3], account[5], account[6], account[7]))
+
 
     def create_accounts_tree(self):
         # Exclude the "Password" column from columns and columns_widths
@@ -260,6 +323,7 @@ class main_window():
         tree_frame.grid_rowconfigure(0, weight=1)
         tree_frame.grid_columnconfigure(0, weight=1)
 
+
         def selected_account(e):
             for selected_ac in self.accounts_tree.selection():
                 account = self.accounts_tree.item(selected_ac)
@@ -276,6 +340,9 @@ class main_window():
                     entry_box.insert(0, value)
 
         self.accounts_tree.bind("<<TreeviewSelect>>", selected_account)
+
+    
+
 
 
 if __name__ == "__main__":
