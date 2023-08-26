@@ -268,7 +268,9 @@ class main_window():
         
         else:
             messagebox.showerror("Password Length Error", "Password length must be between 8 and 16")
-    
+
+        self.generate_password.delete(0, END)
+            
     
     def copy_generated_password(self):
         generated_password = self.password
@@ -278,6 +280,7 @@ class main_window():
             messagebox.showinfo("Copy", "Generated Password Copied") 
         else:
             messagebox.showerror("Failed", "No Password Generated")
+
 
     def show_accounts_info(self):
         for account in self.accounts_tree.get_children():
@@ -296,6 +299,7 @@ class main_window():
         accounts_list = self.db.search_accounts(keyword)
         for account in accounts_list:
             self.accounts_tree.insert("", END, values=(account[0], account[1], account[2], account[3], account[5], account[6], account[7]))
+        self.search_account.delete(0, END)
 
 
     def create_accounts_tree(self):
