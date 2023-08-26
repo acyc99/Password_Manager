@@ -125,7 +125,7 @@ class main_window():
         # Copy Password Button 
         Button(self.crud_frame, command=self.copy_password, width=5, text="Copy", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no+4, column=self.col_no+1, padx=5, pady=2, sticky="e")
         # Search Button 
-        Button(self.search_frame, command=self.search_account_info, width=10, text="Search", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+1, padx=5, pady=2)
+        Button(self.search_frame, command=self.search_accounts_info, width=10, text="Search", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+1, padx=5, pady=2)
         # Check Password Strength Button 
         Button(self.pw_strength_frame, width=10, text="Check PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+2, padx=5, pady=2)
         # Generate Password Button 
@@ -226,11 +226,12 @@ class main_window():
     
 
     ### Modify to only search by Website 
-    def search_account_info(self):
+    def search_accounts_info(self):
+        keyword = self.search_entry_boxes[0].get()
+        print("Result:", keyword)
         for account in self.accounts_tree.get_children():
             self.accounts_tree.delete(account)
-        accounts_list = self.db.search_accounts(self.search_entry_boxes[0])
-        print("Result:", self.search_entry_boxes[0])
+        accounts_list = self.db.search_accounts(keyword)
         for account in accounts_list:
             self.accounts_tree.insert("", END, values=(account[0], account[1], account[2], account[3], account[5], account[6], account[7]))
 
