@@ -136,7 +136,7 @@ class main_window():
         # Search Button 
         Button(self.search_frame, command=self.search_accounts_info, width=10, text="Search", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+1, padx=5, pady=2)
         # Check Password Strength Button 
-        Button(self.pw_strength_frame, width=10, text="Check PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+2, padx=5, pady=2)
+        Button(self.pw_strength_frame, command=self.check_password_strength, width=10, text="Check PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+2, padx=5, pady=2)
         # Generate Password Button 
         Button(self.pw_generator_frame, width=12, command=self.generate_random_password, text="Generate PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=2, padx=5, pady=2, sticky="e")
         # Copy Generated Password Button 
@@ -300,6 +300,47 @@ class main_window():
         for account in accounts_list:
             self.accounts_tree.insert("", END, values=(account[0], account[1], account[2], account[3], account[5], account[6], account[7]))
         self.search_account.delete(0, END)
+
+
+    def check_password_strength(self):
+        pw = self.search_entry_boxes[1].get()
+        print(pw)
+        score = 0 
+        
+        length = len(pw)
+
+        if length >= 8: 
+            score += 1 
+        elif length >= 12: 
+            score += 2 
+        elif length >= 16:
+            score += 3 
+        elif length >= 20:
+            length += 4 
+
+        upper_case = any([1 if c in string.ascii_uppercase else 0 for c in pw])
+        lower_case = any([1 if c in string.ascii_lowercase else 0 for c in pw])
+        special_char = any([1 if c in string.punctuation else 0 for c in pw])
+        number = any([1 if c in string.digits else 0 for c in pw])
+
+        pw_types = [upper_case, lower_case, special_char, number]
+
+        for pw_type in pw_types: 
+            if pw_type is True:
+                score += 1
+            else: 
+                score += 0 
+        
+        with open ("dictionary_pw.txt", "r", encoding='utf-8') as file:
+            for line in file: 
+                common_pw = line.strip()
+                if pw != common_pw:
+                    score += 2 
+                else:
+                    score += 0 
+        
+        print(score)
+
 
 
     def create_accounts_tree(self):
