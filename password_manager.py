@@ -1,7 +1,7 @@
 from tkinter import Tk, Frame, Label, LabelFrame, Button, Entry, messagebox, Checkbutton, IntVar, Canvas, END
 from tkinter import ttk 
 from database import Database
-import random, string
+import random, string 
 
 
 
@@ -306,10 +306,11 @@ class main_window():
 
     def check_password_strength(self):
         pw = self.search_entry_boxes[1].get()
-        print(pw)
+        print("Password:", pw)
         score = 0 
         
         length = len(pw)
+        print("PW Length:", length)
 
         if length >= 8: 
             score += 1 
@@ -319,6 +320,10 @@ class main_window():
             score += 3 
         elif length >= 20:
             length += 4 
+        else: 
+            score -= 3
+        
+        print("Score for Length:", score)
 
         upper_case = any([1 if c in string.ascii_uppercase else 0 for c in pw])
         lower_case = any([1 if c in string.ascii_lowercase else 0 for c in pw])
@@ -332,17 +337,20 @@ class main_window():
                 score += 1
             else: 
                 score += 0 
+            print("Score for Types:", score)
         
-        with open ("dictionary_pw.txt", "r", encoding='utf-8') as file:
+        ### Check if password has a pattern 
+        
+        with open ("dictionary_pw.txt", "r", encoding='ISO-8859-1') as file:
             for line in file: 
                 common_pw = line.strip()
-                if pw != common_pw:
-                    score += 2 
-                else:
-                    score += 0 
+            if pw != common_pw:
+                score += 2 
+            else:
+                score += 0 
+            print("Score for dictionary pw:", score)
         
-        print(score)
-
+        print("Total Score:", score)
 
 
     def create_accounts_tree(self):
