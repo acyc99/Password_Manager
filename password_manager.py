@@ -193,6 +193,8 @@ class main_window():
         data = {"website": self.website, "email": self.email, "username": self.username, "password": self.password, "security_question": self.security_question, "security_answer": self.security_answer, "notes": self.notes}
         
         self.db.create_account_info(data)
+        for entry_box in self.entry_boxes:
+            entry_box.delete(0, END)
         self.show_accounts_info()
 
 
