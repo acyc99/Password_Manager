@@ -1,7 +1,7 @@
 from tkinter import Tk, Frame, Label, LabelFrame, Button, Entry, messagebox, Checkbutton, IntVar, Canvas, END
 from tkinter import ttk 
 from database import Database
-import random, string, time 
+import random, string
 
 
 
