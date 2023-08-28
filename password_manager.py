@@ -144,7 +144,7 @@ class main_window():
         # Generate Password Button 
         Button(self.pw_generator_frame, width=12, command=self.generate_random_password, text="Generate PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=2, padx=5, pady=2, sticky="e")
         # Hide Password Button 
-        Button(self.pw_strength_frame, command=self.hide_show_password, width=5, text="Hide/Show PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=2, column=1, padx=5, pady=2, sticky="we")
+        Button(self.pw_strength_frame, command=self.hide_show_password, width=13, text="Hide/Show PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=2, column=1, padx=5, pady=2)
         # Copy Password Strength Button 
         self.copy_pw_strength_button = Button(self.pw_strength_frame, command=self.copy_password_strength, width=5, text="Copy", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0, state="disabled")
         self.copy_pw_strength_button.grid(row=2, column=2, padx=5, pady=2, sticky="e")
