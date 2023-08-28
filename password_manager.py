@@ -1,7 +1,7 @@
 from tkinter import Tk, Frame, Label, LabelFrame, Button, Entry, messagebox, Checkbutton, IntVar, Canvas, END
 from tkinter import ttk 
 from database import Database
-import random, string 
+import random, string, time 
 
 
 
@@ -59,8 +59,12 @@ class main_window():
         
         Label(self.pw_generator_frame, text="Password Length", bg="#7C7B86", fg="#FFFFFF", font=("Courier", 12, "bold"), padx=5, pady=1).grid(row=self.row_no, column=self.col_no, padx=5, pady=1, sticky="w")
         
+        # Show Password Strength 
+        self.pw_strength_label = Label(self.pw_strength_frame, text="", bg="#7C7B86", fg="#FFFFFF", font=("Courier", 12, "bold"), padx=5, pady=1)
+        self.pw_strength_label.grid(row=2, column=self.col_no, padx=5, pady=1, sticky="we")
+
         # Show Random Password 
-        self.generated_pw_label = Label(self.pw_generator_frame, text="Generating PW...", bg="#7C7B86", fg="#FFFFFF", font=("Courier", 12, "bold"), padx=5, pady=1)
+        self.generated_pw_label = Label(self.pw_generator_frame, text="", bg="#7C7B86", fg="#FFFFFF", font=("Courier", 12, "bold"), padx=5, pady=1)
         self.generated_pw_label.grid(row=3, column=self.col_no, padx=5, pady=1, sticky="w")
 
         labels_info = ("ID", "Website*", "Email*", "Username*", "Password*", "Security Question", "Security Answer", "Notes")
@@ -139,13 +143,18 @@ class main_window():
         Button(self.pw_strength_frame, command=self.check_password_strength, width=10, text="Check PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=self.col_no+2, padx=5, pady=2)
         # Generate Password Button 
         Button(self.pw_generator_frame, width=12, command=self.generate_random_password, text="Generate PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=self.row_no, column=2, padx=5, pady=2, sticky="e")
+        # Hide Password Button 
+        Button(self.pw_strength_frame, command=self.hide_show_password, width=5, text="Hide/Show PW", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0).grid(row=2, column=1, padx=5, pady=2, sticky="we")
+        # Copy Password Strength Button 
+        self.copy_pw_strength_button = Button(self.pw_strength_frame, command=self.copy_password_strength, width=5, text="Copy", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0, state="disabled")
+        self.copy_pw_strength_button.grid(row=2, column=2, padx=5, pady=2, sticky="e")
         # Copy Generated Password Button 
         self.copy_generated_pw_button = Button(self.pw_generator_frame, command=self.copy_generated_password, width=5, text="Copy", bg="#000000", fg="#FFFFFF", font=("Courier", 12), padx=3, pady=0, state="disabled")
         self.copy_generated_pw_button.grid(row=3, column=2, padx=5, pady=2, sticky="e")
 
 
     def create_crud_buttons(self):
-        buttons_info = (("Save", "#59B400", self.save_account_info), ("Update", "#00AAFF", self.update_account_info), ("Delete", "#FF5383", self.delete_account_info), ("Show Account Info", "#E996FA", self.show_accounts_info)) # ("Copy Password", "#E996FA", self.copy_password)
+        buttons_info = (("Save", "#FFCA78", self.save_account_info), ("Update", "#FFA894", self.update_account_info), ("Delete", "#DE95A8", self.delete_account_info), ("Show Account Info", "#A78AA4", self.show_accounts_info)) # ("Copy Password", "#E996FA", self.copy_password)
         
         # Top Row Buttons 
         self.row_no += 1
@@ -234,7 +243,12 @@ class main_window():
         
         for entry_box in self.entry_boxes:
             entry_box.delete(0, END)
-    
+
+
+    def hide_show_password(self):
+        current_show_value = self.password_strength.cget("show")
+        new_show_value = "*" if current_show_value == "" else "" 
+        self.password_strength.config(show=new_show_value)
 
     def generate_random_password(self):
         length = int(self.search_entry_boxes[2].get())
@@ -272,8 +286,8 @@ class main_window():
             messagebox.showerror("Password Length Error", "Password length must be between 8 and 16")
 
         self.generate_password.delete(0, END)
-            
-    
+
+
     def copy_generated_password(self):
         generated_password = self.password
         if generated_password != "":
@@ -282,6 +296,83 @@ class main_window():
             messagebox.showinfo("Copy", "Generated Password Copied") 
         else:
             messagebox.showerror("Failed", "No Password Generated")
+
+
+    def copy_password_strength(self):
+        pw = self.search_entry_boxes[1].get() 
+        if pw != "":
+            self.main.clipboard_clear() # Clear the clipboard 
+            self.main.clipboard_append(pw) # Copy the password to the clipboard 
+            messagebox.showinfo("Copy", "Password Copied") 
+        else:
+            messagebox.showerror("Failed", "No Password Copied")
+
+
+    def check_password_strength(self):
+        pw = self.search_entry_boxes[1].get()
+        print("Password:", pw)
+        length = len(pw)
+        print("PW Length:", length)
+
+        score = 0 
+
+        with open ("dictionary_pw.txt", "r", encoding='ISO-8859-1') as file:
+            for line in file: 
+                common_pw = line.strip()
+                if pw == common_pw:
+                    score = 0 
+                    self.pw_strength_label.config(text="Weak", bg="#DE95A8")
+                    print("Password found in the common pw list!")
+                    return 
+
+        sequences = [
+            "1234567890",
+            "abcdefghijklmnopqrstuvwxyz",
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        ]
+
+        for sequence in sequences:
+            if sequence in pw or sequence[::-1] in pw:
+                self.pw_strength_label.config(text="Weak", bg="#DE95A8")
+                return 
+
+        if length < 8:
+            self.pw_strength_label.config(text="Weak", bg="#DE95A8")
+        elif length >= 8: 
+            score += 1 
+        elif length >= 12: 
+            score += 2 
+        elif length >= 16:
+            score += 3 
+        elif length >= 20:
+            length += 4 
+        
+        print("Score for Length:", score)
+
+        upper_case = any([1 if c in string.ascii_uppercase else 0 for c in pw])
+        lower_case = any([1 if c in string.ascii_lowercase else 0 for c in pw])
+        special_char = any([1 if c in string.punctuation else 0 for c in pw])
+        number = any([1 if c in string.digits else 0 for c in pw])
+
+        pw_types = [upper_case, lower_case, special_char, number]
+        print(pw_types)
+
+        for pw_type in pw_types: 
+            if pw_type is True:
+                score += 1
+            else: 
+                score += 0
+
+        print("Total Score:", score)
+
+        if score <= 2: 
+            self.pw_strength_label.config(text="Weak", bg="#DE95A8")
+        elif score > 2 and score <= 4:
+            self.pw_strength_label.config(text="Good", bg="#79A2C0")
+            self.copy_pw_strength_button.config(state="normal")
+        elif score > 4: 
+            self.pw_strength_label.config(text="Strong", bg="#41A4A2")
+            self.copy_pw_strength_button.config(state="normal")
 
 
     def show_accounts_info(self):
@@ -302,55 +393,6 @@ class main_window():
         for account in accounts_list:
             self.accounts_tree.insert("", END, values=(account[0], account[1], account[2], account[3], account[5], account[6], account[7]))
         self.search_account.delete(0, END)
-
-
-    def check_password_strength(self):
-        pw = self.search_entry_boxes[1].get()
-        print("Password:", pw)
-        score = 0 
-        
-        length = len(pw)
-        print("PW Length:", length)
-
-        if length >= 8: 
-            score += 1 
-        elif length >= 12: 
-            score += 2 
-        elif length >= 16:
-            score += 3 
-        elif length >= 20:
-            length += 4 
-        else: 
-            score -= 3
-        
-        print("Score for Length:", score)
-
-        upper_case = any([1 if c in string.ascii_uppercase else 0 for c in pw])
-        lower_case = any([1 if c in string.ascii_lowercase else 0 for c in pw])
-        special_char = any([1 if c in string.punctuation else 0 for c in pw])
-        number = any([1 if c in string.digits else 0 for c in pw])
-
-        pw_types = [upper_case, lower_case, special_char, number]
-
-        for pw_type in pw_types: 
-            if pw_type is True:
-                score += 1
-            else: 
-                score += 0 
-            print("Score for Types:", score)
-        
-        ### Check if password has a pattern 
-        
-        with open ("dictionary_pw.txt", "r", encoding='ISO-8859-1') as file:
-            for line in file: 
-                common_pw = line.strip()
-            if pw != common_pw:
-                score += 2 
-            else:
-                score += 0 
-            print("Score for dictionary pw:", score)
-        
-        print("Total Score:", score)
 
 
     def create_accounts_tree(self):
@@ -396,7 +438,6 @@ class main_window():
 
         self.accounts_tree.bind("<<TreeviewSelect>>", selected_account)
 
-    
 
 
 
