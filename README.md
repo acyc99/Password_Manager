@@ -1,5 +1,7 @@
 # Password Manager 
 
+https://github.com/acyc99/Password_Manager/assets/105580341/1f1cc3da-57ff-4687-9c88-eebcb0a5c580
+
 ## Introduction 
 The Password Manager is a Python application that uses tkinter library for the graphical user interface (GUI) and sqlite3 for database management. It is designed to store personal account information and has features for measuring password strength and generating random passwords. 
 
